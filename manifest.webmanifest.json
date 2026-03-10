@@ -1,0 +1,9 @@
+{
+  "name": "C90B Checklist",
+  "short_name": "C90B",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#05070b",
+  "theme_color": "#05070b",
+  "icons": []
+}

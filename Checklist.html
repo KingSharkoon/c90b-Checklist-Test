@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>C90B Offline Checklist</title>
+  <style>
+    :root {
+      --bg: #05070b;
+      --panel: #0c1118;
+      --card: #111827;
+      --text: #73b4ff;
+      --muted: #8aa0b8;
+      --border: #243244;
+      --accent: #3b82f6;
+      --green: #22c55e;
+      --red: #dc2626;
+      --shadow: 0 12px 30px rgba(0,0,0,.28);
+      --drawer-width: min(620px, 94vw);
+    }
+
+    body.light {
+      --bg: #f3f6fb;
+      --panel: #ffffff;
+      --card: #ffffff;
+      --text: #111111;
+      --muted: #5a6472;
+      --border: #d9e3ef;
+      --accent: #2563eb;
+      --green: #16a34a;
+      --red: #dc2626;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    button, input { font: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: max(12px, env(safe-area-inset-top)) 14px 12px;
+      background: rgba(5,7,11,.82);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    body.light .topbar {
+      background: rgba(255,255,255,.88);
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: .2px;
+      margin-right: auto;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 11px 14px;
+      min-height: 44px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform .12s ease, opacity .12s ease;
+    }
+
+    .btn:hover { opacity: .97; }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: .5; cursor: default; }
+    .btn.primary { border-color: var(--accent); }
+    .btn.red {
+      background: var(--red);
+      color: white;
+      border-color: #b91c1c;
+      font-weight: 800;
+    }
+    .btn.green {
+      background: var(--green);
+      color: white;
+      border-color: #15803d;
+      font-weight: 800;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 14px 120px;
+      flex: 1;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, rgba(59,130,246,.12), rgba(59,130,246,.03));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 4vw, 34px);
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .menu-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .menu-card h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .menu-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      min-height: 66px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(34,197,94,.10);
+      border: 1px solid rgba(34,197,94,.22);
+      color: var(--green);
+      font-size: 14px;
+    }
+
+    .section-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .section-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+
+    .section-btn.done {
+      border-color: rgba(34,197,94,.45);
+      box-shadow: inset 0 0 0 1px rgba(34,197,94,.16), var(--shadow);
+    }
+
+    .section-btn .small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section-btn.done .title::after {
+      content: " ✓";
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .danger-zone {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(220,38,38,.32);
+      background: rgba(220,38,38,.06);
+    }
+
+    .danger-zone h3 {
+      margin: 0 0 8px;
+      color: var(--red);
+    }
+
+    .danger-zone p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .floating-tab {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 70;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      border-radius: 16px 0 0 16px;
+      border-right: none;
+      padding: 16px 10px;
+      min-height: 120px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.48);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+      z-index: 88;
+    }
+
+    .overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: var(--drawer-width);
+      max-width: 100%;
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      transform: translateX(100%);
+      transition: transform .24s ease;
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -10px 0 30px rgba(0,0,0,.36);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: max(14px, env(safe-area-inset-top)) 14px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    .drawer-title {
+      font-weight: 800;
+      font-size: 18px;
+      margin-right: auto;
+    }
+
+    .drawer-meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .drawer-body {
+      overflow: auto;
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .item.check {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .item.check input {
+      appearance: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      margin-top: 2px;
+      background: transparent;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .item.check input:checked {
+      background: var(--green);
+      border-color: #15803d;
+    }
+
+    .item.check input:checked::after {
+      content: "✓";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .item.completed {
+      border-color: rgba(34,197,94,.5);
+      background: rgba(34,197,94,.08);
+    }
+
+    .item.completed .label,
+    .item.completed .response {
+      color: var(--green);
+    }
+
+    .item.active {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .label {
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .response {
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.35;
+    }
+
+    .note {
+      color: var(--muted);
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .footer-cta {
+      position: sticky;
+      bottom: 0;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(0,0,0,0), var(--panel) 20%);
+      padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+      display: none;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    body.light .footer-cta {
+      background: linear-gradient(180deg, rgba(255,255,255,0), var(--panel) 20%);
+    }
+
+    .footer-cta.show {
+      display: flex;
+    }
+
+    @media (max-width: 700px) {
+      .topbar { gap: 8px; }
+      .brand { font-size: 15px; }
+      .btn { padding: 10px 12px; }
+      .drawer-body { padding-bottom: 120px; }
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">C90B Checklist</div>
+      <button class="btn primary" id="homeTopBtn">Home</button>
+      <button class="btn red" id="emerTopBtn">EMER</button>
+      <button class="btn" id="themeBtn">Light Mode</button>
+    </div>
+
+    <main class="page" id="page"></main>
+
+    <button class="btn primary floating-tab" id="drawerTab" hidden>Checklist</button>
+    <div class="overlay" id="overlay"></div>
+
+    <aside class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <div>
+          <div class="drawer-title" id="drawerTitle">Checklist</div>
+          <div class="drawer-meta" id="drawerMeta"></div>
+        </div>
+        <button class="btn primary" id="closeDrawerBtn">Close</button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+      <div class="footer-cta" id="footerCta">
+        <button class="btn green" id="nextChecklistBtn">Next Checklist</button>
+        <button class="btn" id="backHomeBtn">Home</button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const DATA = {
+      aircraft: "C90B Blackhawk",
+      info: [
+        {
+          title: "AIRSPEED LIMITATIONS KIAS",
+          items: [
+            { type: "note", text: "V1  100 KIAS    V2  90 KIAS    V3  124 KIAS" },
+            { type: "note", text: "V4  140 KIAS    V5  160 KIAS    V6  226 KIAS" },
+            { type: "note", text: "Va  162 KIAS  @ 10000 lbs" },
+            { type: "note", text: "154 KIAS  @ 9000 lbs" },
+            { type: "note", text: "145 KIAS  @ 8000 lbs" },
+            { type: "note", text: "136 KIAS  @ 7000 lbs" },
+            { type: "note", text: "126 KIAS  @ 6000 lbs" },
+            { type: "note", text: "Vfe  184 KIAS" },
+            { type: "note", text: "Vle  181 KIAS" },
+            { type: "note", text: "Vlo  181 KIAS extending    200 KIAS retracting" },
+            { type: "note", text: "Vmc  86 KIAS" },
+            { type: "note", text: "Vyse  111 KIAS" },
+            { type: "note", text: "Vref  122 KIAS @ 10000 lbs" },
+            { type: "note", text: "102 KIAS @ 7000 lbs" }
+          ]
+        },
+        {
+          title: "LIMITATIONS",
+          items: [
+            { type: "note", text: "MAX TAKEOFF WEIGHT...... 10500 lbs" },
+            { type: "note", text: "MAX RAMP WEIGHT......... 10550 lbs" },
+            { type: "note", text: "MAX LANDING WEIGHT...... 10000 lbs" },
+            { type: "note", text: "MAX ZERO FUEL WEIGHT..... 9500 lbs" },
+            { type: "note", text: "MAX BAGGAGE AFT........... 350 lbs" },
+            { type: "note", text: "MAX BAGGAGE NOSE.......... 500 lbs" },
+            { type: "note", text: "MAX BAGGAGE CABIN......... 250 lbs" },
+            { type: "note", text: "MAX OIL CAPACITY........ 11 qts" },
+            { type: "note", text: "MAX FUEL CAPACITY....... 384 GAL" },
+            { type: "note", text: "MAX FUEL CAPACITY...... 2574 lbs" },
+            { type: "note", text: "MIN CREW...................... 1" },
+            { type: "note", text: "MAX PAX....................... 9" },
+            { type: "note", text: "ENG OIL PRESS MIN........ 30 psi" },
+            { type: "note", text: "ITT LIMIT................. 810 C" },
+            { type: "note", text: "PROP MIN RPM.............. 1450" }
+          ]
+        }
+      ],
+      normal: [
+        {
+          title: "CABIN PREPERATION",
+          items: [
+            { type: "check", label: "MAX TAKEOFF WT", response: "CHECKED" },
+            { type: "check", label: "BAGGAGE", response: "SECURE" },
+            { type: "check", label: "BAGGAGE DOOR", response: "CLOSED AND LOCKED" },
+            { type: "check", label: "SEATS AND BELTS", response: "SECURE / BRIEFED" },
+            { type: "check", label: "NOSE STORAGE", response: "SECURE" },
+            { type: "check", label: "EMERGENCY EQUIPMENT", response: "CHECKED" },
+            { type: "check", label: "FORWARD FLIGHT DECK CURTAIN", response: "STOWED" }
+          ]
+        },
+        {
+          title: "BEFORE STARTING ENGINES",
+          items: [
+            { type: "check", label: "PARKING BRAKE", response: "SET" },
+            { type: "check", label: "IGNITION / ENGINE START SWITCHES", response: "OFF" },
+            { type: "check", label: "PROP LEVERS", response: "HIGH RPM" },
+            { type: "check", label: "CONDITION LEVERS", response: "CUTOFF" },
+            { type: "check", label: "LANDING GEAR LEVER", response: "DOWN" },
+            { type: "check", label: "LANDING GEAR INDICATORS", response: "CHECKED" },
+            { type: "check", label: "EXTERIOR LIGHTS", response: "OFF" },
+            { type: "check", label: "PAX BRIEF", response: "COMPLETE" },
+            { type: "check", label: "FLIGHT CONTROLS", response: "FREE AND CORRECT" },
+            { type: "check", label: "FUEL QUANTITY", response: "CHECKED" },
+            { type: "check", label: "FUEL CROSSFEED", response: "OFF" },
+            { type: "check", label: "FUEL BOOST PUMPS", response: "OFF" },
+            { type: "check", label: "P & E HEAT", response: "OFF" },
+            { type: "check", label: "AVIONICS MASTER SWITCH", response: "OFF" },
+            { type: "check", label: "ALTERNATOR AND GENERATOR SWITCHES", response: "OFF" },
+            { type: "check", label: "BATTERY SWITCH", response: "ON" },
+            { type: "check", label: "INVERTER SWITCH", response: "ON" },
+            { type: "check", label: "PRIMARY BUSES VOLTAGE", response: "CHECKED" },
+            { type: "check", label: "FUEL LOW ANNUNCIATORS", response: "CHECKED OFF" },
+            { type: "check", label: "NO SMOKING & FASTEN BELTS", response: "ON AS REQ" }
+          ]
+        },
+        {
+          title: "STARTING ENGINES",
+          items: [
+            { type: "check", label: "BEACON LIGHT", response: "ON" },
+            { type: "check", label: "LEFT / RIGHT GENERATOR SWITCH", response: "RESET THEN ON" },
+            { type: "check", label: "LEFT / RIGHT ALTERNATOR SWITCHES", response: "ON" },
+            { type: "check", label: "LEFT / RIGHT IGNITION AND ENGINE START", response: "STARTER ONLY" },
+            { type: "check", label: "PROP LEVER", response: "HIGH IDLE" },
+            { type: "check", label: "CONDITION LEVER", response: "LOW IDLE" },
+            { type: "check", label: "AT 13% Ng", response: "INTRODUCE FUEL" },
+            { type: "check", label: "OIL PRESSURE", response: "CHECK" },
+            { type: "check", label: "STARTER", response: "OFF AT 52% Ng" },
+            { type: "check", label: "GENERATOR LOADMETER", response: "CHECKED" },
+            { type: "check", label: "GENERATOR VOLTAGE", response: "CHECKED" },
+            { type: "check", label: "INVERTER VOLTAGE AND FREQ", response: "CHECKED" },
+            { type: "check", label: "REPEAT FOR OTHER ENGINE", response: "COMPLETE" }
+          ]
+        },
+        {
+          title: "AFTER STARTING ENGINES",
+          items: [
+            { type: "check", label: "STARTER DUTY LIMITS", response: "OBSERVE" },
+            { type: "check", label: "AVIONICS MASTER SWITCH", response: "ON" },
+            { type: "check", label: "BLEED AIR VALVES", response: "OPEN" },
+            { type: "check", label: "P & E HEAT", response: "AS REQ" },
+            { type: "check", label: "ELEVATOR / RUDDER TRIM", response: "SET FOR TAKEOFF" },
+            { type: "check", label: "PITCH / ROLL / YAW DAMPERS", response: "OFF" },
+            { type: "check", label: "FLAPS", response: "APPROACH" },
+            { type: "check", label: "FMS / ALTIMETERS / RADIOS / AUTOPILOT", response: "SET" },
+            { type: "check", label: "EFIS / FUEL ANNUNCIATORS / WARNINGS", response: "CHECKED" }
+          ]
+        },
+        {
+          title: "BEFORE TAXIING",
+          items: [
+            { type: "check", label: "AUTOPILOT PRE-FLIGHT TEST", response: "COMPLETE" },
+            { type: "check", label: "ELEVATOR TRIM / RUDDER TRIM", response: "SET" },
+            { type: "check", label: "FLIGHT INSTRUMENTS", response: "CHECKED" },
+            { type: "check", label: "ICE VANES", response: "EXTEND IF REQ" },
+            { type: "check", label: "WINDSHIELD ANTI-ICE / SURFACE DEICE / PROP ANTI-ICE / PITOT HEAT", response: "AS REQUIRED" },
+            { type: "check", label: "RADAR", response: "AS REQ" },
+            { type: "check", label: "TAXI / NAV LIGHTS", response: "AS REQ" }
+          ]
+        },
+        {
+          title: "TAXIING",
+          items: [
+            { type: "check", label: "BRAKES", response: "CHECKED" },
+            { type: "check", label: "FLIGHT CONTROLS", response: "FREE AND CORRECT" },
+            { type: "check", label: "FLIGHT INSTRUMENTS / COMPASS / TURN COORDINATOR", response: "CHECKED" }
+          ]
+        },
+        {
+          title: "BEFORE TAKEOFF",
+          items: [
+            { type: "check", label: "PARKING BRAKE", response: "SET" },
+            { type: "check", label: "AUTOPILOT / FLIGHT DIRECTOR", response: "CHECKED" },
+            { type: "check", label: "TRIMS", response: "SET FOR TAKEOFF" },
+            { type: "check", label: "FLAPS", response: "APPROACH" },
+            { type: "check", label: "FLIGHT CONTROLS", response: "FREE AND CORRECT" },
+            { type: "check", label: "RUDDERS", response: "SET FOR TAKEOFF" },
+            { type: "check", label: "INVERTER LOADMETER", response: "CHECKED" },
+            { type: "check", label: "GENERATOR LOADMETER", response: "CHECKED" },
+            { type: "check", label: "BLEED AIR VALVES", response: "OPEN" },
+            { type: "check", label: "FUEL CROSSFEED", response: "OFF" },
+            { type: "check", label: "FUEL QUANTITY / BALANCE", response: "CHECKED" },
+            { type: "check", label: "FUEL BOOST PUMP", response: "ON IF REQ" },
+            { type: "check", label: "AUTO-IGNITION", response: "ARMED OR ON IF REQ" },
+            { type: "check", label: "PROP LEVERS", response: "FULL FORWARD" },
+            { type: "check", label: "ENGINE INSTRUMENTS", response: "CHECKED" },
+            { type: "check", label: "ICE VANE / PITOT / HEAT / DEICE", response: "AS REQUIRED" },
+            { type: "check", label: "EXTERIOR LIGHTS", response: "LANDING / STROBE AS REQ" },
+            { type: "check", label: "PRESSURIZATION", response: "SET" },
+            { type: "check", label: "PAX BRIEF / CABIN", response: "COMPLETE" }
+          ]
+        },
+        {
+          title: "TAKEOFF",
+          items: [
+            { type: "check", label: "POWER LEVERS", response: "MAX ALLOWABLE" },
+            { type: "check", label: "PROPELLER / ENGINES", response: "CHECKED" },
+            { type: "check", label: "ROTATE", response: "AT Vr" },
+            { type: "check", label: "POSITIVE RATE", response: "GEAR UP" },
+            { type: "check", label: "CLIMB", response: "V2 OR AS REQUIRED" }
+          ]
+        },
+        {
+          title: "AFTER TAKEOFF",
+          items: [
+            { type: "check", label: "LANDING GEAR", response: "UP" },
+            { type: "check", label: "BRAKES", response: "APPLY" },
+            { type: "check", label: "FLAPS", response: "UP" },
+            { type: "check", label: "CLIMB POWER", response: "SET" },
+            { type: "check", label: "YAW DAMPER", response: "ON" },
+            { type: "check", label: "LANDING LIGHTS", response: "AS REQ" }
+          ]
+        },
+        {
+          title: "CLIMB",
+          items: [
+            { type: "check", label: "PROPELLER RPM", response: "SET" },
+            { type: "check", label: "ENGINE INSTRUMENTS", response: "CHECKED" },
+            { type: "check", label: "FUEL BALANCE", response: "CHECKED" },
+            { type: "check", label: "P & E HEAT / ANTI-ICE", response: "AS REQ" }
+          ]
+        },
+        {
+          title: "CRUISE",
+          items: [
+            { type: "check", label: "CRUISE POWER", response: "SET" },
+            { type: "check", label: "ENGINE INSTRUMENTS", response: "CHECKED" },
+            { type: "check", label: "FUEL QUANTITY / BALANCE", response: "CHECKED" },
+            { type: "check", label: "PRESSURIZATION", response: "CHECKED" },
+            { type: "check", label: "ICE PROTECTION", response: "AS REQ" }
+          ]
+        },
+        {
+          title: "DESCENT",
+          items: [
+            { type: "check", label: "ALTIMETERS", response: "SET" },
+            { type: "check", label: "PRESSURIZATION", response: "SET" },
+            { type: "check", label: "FUEL BALANCE", response: "CHECKED" },
+            { type: "check", label: "APPROACH BRIEFING", response: "COMPLETE" },
+            { type: "check", label: "ICE PROTECTION", response: "AS REQ" }
+          ]
+        },
+        {
+          title: "BEFORE LANDING",
+          items: [
+            { type: "check", label: "SEAT BELTS / NO SMOKING", response: "ON" },
+            { type: "check", label: "FUEL CROSSFEED", response: "OFF" },
+            { type: "check", label: "FUEL BOOST PUMPS", response: "AS REQ" },
+            { type: "check", label: "PROP LEVERS", response: "FULL FORWARD" },
+            { type: "check", label: "AUTO-IGNITION", response: "ARMED OR ON IF REQ" },
+            { type: "check", label: "GEAR", response: "DOWN" },
+            { type: "check", label: "LANDING CHECKS", response: "THREE GREEN" },
+            { type: "check", label: "FLAPS", response: "AS REQ" },
+            { type: "check", label: "LANDING LIGHTS", response: "ON" }
+          ]
+        },
+        {
+          title: "LANDING",
+          items: [
+            { type: "check", label: "TOUCHDOWN", response: "MAIN WHEELS FIRST" },
+            { type: "check", label: "BRAKING", response: "AS REQUIRED" },
+            { type: "check", label: "REVERSE", response: "AS REQ" }
+          ]
+        },
+        {
+          title: "AFTER LANDING",
+          items: [
+            { type: "check", label: "FLAPS", response: "UP" },
+            { type: "check", label: "TRANSPONDER", response: "STBY" },
+            { type: "check", label: "LANDING LIGHTS", response: "OFF" },
+            { type: "check", label: "STROBE LIGHTS", response: "OFF" },
+            { type: "check", label: "TAXI LIGHTS", response: "AS REQ" },
+            { type: "check", label: "ICE PROTECTION", response: "OFF AS REQ" }
+          ]
+        },
+        {
+          title: "SHUTDOWN",
+          items: [
+            { type: "check", label: "PARKING BRAKE", response: "SET" },
+            { type: "check", label: "AVIONICS", response: "OFF" },
+            { type: "check", label: "ELECTRICAL EQUIPMENT", response: "OFF" },
+            { type: "check", label: "CONDITION LEVERS", response: "CUTOFF" },
+            { type: "check", label: "IGNITION / ENGINE START SWITCHES", response: "OFF" },
+            { type: "check", label: "BATTERY / INVERTER", response: "OFF" },
+            { type: "check", label: "GENERATOR / ALTERNATOR", response: "OFF" },
+            { type: "check", label: "BEACON", response: "OFF" }
+          ]
+        }
+      ],
+      emergency: [
+        {
+          title: "ENGINE FAILURE",
+          items: [
+            { type: "check", label: "POWER LEVER (AFFECTED ENGINE)", response: "IDLE" },
+            { type: "check", label: "PROP LEVER (AFFECTED ENGINE)", response: "FEATHER" },
+            { type: "check", label: "CONDITION LEVER (AFFECTED ENGINE)", response: "CUTOFF" },
+            { type: "check", label: "FUEL BOOST PUMP (AFFECTED ENGINE)", response: "OFF" },
+            { type: "check", label: "AUTO-IGNITION", response: "ON" },
+            { type: "check", label: "LAND AS SOON AS PRACTICABLE", response: "COMPLETE" }
+          ]
+        }
+      ]
+    };
+
+    const STORAGE_KEY = "c90b-checklist-state-v2";
+
+    const defaultState = {
+      theme: "dark",
+      currentCategory: null,
+      currentSectionTitle: null,
+      drawerOpen: false,
+      completed: {}
+    };
+
+    const page = document.getElementById("page");
+    const drawer = document.getElementById("drawer");
+    const drawerBody = document.getElementById("drawerBody");
+    const drawerTitle = document.getElementById("drawerTitle");
+    const drawerMeta = document.getElementById("drawerMeta");
+    const overlay = document.getElementById("overlay");
+    const drawerTab = document.getElementById("drawerTab");
+    const footerCta = document.getElementById("footerCta");
+    const nextChecklistBtn = document.getElementById("nextChecklistBtn");
+    const themeBtn = document.getElementById("themeBtn");
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...defaultState };
+        return { ...defaultState, ...JSON.parse(raw) };
+      } catch {
+        return { ...defaultState };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function setTheme(theme) {
+      state.theme = theme;
+      document.body.className = theme;
+      themeBtn.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+      saveState();
+    }
+
+    function getSections(category) {
+      return DATA[category] || [];
+    }
+
+    function getSection(category, title) {
+      return getSections(category).find(section => section.title === title);
+    }
+
+    function sectionKey(category, title) {
+      return `${category}::${title}`;
+    }
+
+    function getCompletion(category, title) {
+      return state.completed[sectionKey(category, title)] || {};
+    }
+
+    function setItemCompletion(category, title, idx, checked) {
+      const key = sectionKey(category, title);
+      if (!state.completed[key]) state.completed[key] = {};
+      state.completed[key][idx] = checked;
+      saveState();
+    }
+
+    function sectionProgress(section, category) {
+      const checkIndexes = section.items
+        .map((item, idx) => item.type === "check" ? idx : null)
+        .filter(v => v !== null);
+      const completion = getCompletion(category, section.title);
+      const done = checkIndexes.filter(idx => completion[idx]).length;
+      return {
+        total: checkIndexes.length,
+        done,
+        complete: checkIndexes.length > 0 && done === checkIndexes.length
+      };
+    }
+
+    function countCompleted(category) {
+      return getSections(category).filter(section => sectionProgress(section, category).complete).length;
+    }
+
+    function renderHome() {
+      page.innerHTML = `
+        <section class="hero">
+          <h1>${DATA.aircraft}</h1>
+          <p>Offline Checklist für PC und iPad. Home und EMER sind immer oben erreichbar. Fortschritt bleibt lokal gespeichert, auch wenn du zurück ins Menü gehst.</p>
+        </section>
+
+        <section class="menu-grid">
+          <article class="menu-card">
+            <div class="status">${countCompleted("info")} / ${getSections("info").length} fertig</div>
+            <h2>Aircraft Info</h2>
+            <p>Grunddaten, Speeds und Limitations. Als Referenz jederzeit abrufbar.</p>
+            <button class="btn primary" data-open-menu="info">Open</button>
+          </article>
+
+          <article class="menu-card">
+            <div class="status">${countCompleted("normal")} / ${getSections("normal").length} fertig</div>
+            <h2>Normal Checklists</h2>
+            <p>Von Cabin Preparation bis Shutdown. Alle Punkte abhackbar mit Maus oder Finger.</p>
+            <button class="btn primary" data-open-menu="normal">Open</button>
+          </article>
+
+          <article class="menu-card">
+            <div class="status">${countCompleted("emergency")} / ${Math.max(getSections("emergency").length, 1)} fertig</div>
+            <h2>Emergency Checklists</h2>
+            <p>EMER bleibt oben immer erreichbar. Aktuell ist Engine Failure befüllt.</p>
+            <button class="btn red" data-open-menu="emergency">Open EMER</button>
+          </article>
+        </section>
+
+        <section class="danger-zone">
+          <h3>Reset all checklist</h3>
+          <p>Löscht alle Haken und setzt alle Checklisten wieder auf Anfang.</p>
+          <button class="btn red" id="resetAllBtn">Reset all checklist</button>
+        </section>
+      `;
+
+      page.querySelectorAll("[data-open-menu]").forEach(btn => {
+        btn.addEventListener("click", () => renderSectionMenu(btn.dataset.openMenu));
+      });
+
+      document.getElementById("resetAllBtn").addEventListener("click", resetAll);
+      updateFloatingTab();
+    }
+
+    function renderSectionMenu(category) {
+      const titleMap = {
+        info: "Aircraft Info",
+        normal: "Normal Checklists",
+        emergency: "Emergency Checklists"
+      };
+
+      const sections = getSections(category);
+      if (!sections.length) {
+        page.innerHTML = `
+          <section class="hero">
+            <h1>${titleMap[category]}</h1>
+            <p>Hier ist aktuell noch nichts hinterlegt.</p>
+          </section>
+          <button class="btn primary" id="backHomeSingle">Home</button>
+        `;
+        document.getElementById("backHomeSingle").addEventListener("click", renderHome);
+        updateFloatingTab();
+        return;
+      }
+
+      page.innerHTML = `
+        <section class="hero">
+          <h1>${titleMap[category]}</h1>
+          <p>Wähle eine Checkliste. Dein Stand bleibt gespeichert, auch wenn du ins Hauptmenü zurückgehst oder die Liste schließt.</p>
+        </section>
+        <section class="section-list">
+          ${sections.map(section => {
+            const progress = sectionProgress(section, category);
+            return `
+              <button class="section-btn ${progress.complete ? "done" : ""}" data-open-checklist="${escapeAttr(category)}" data-title="${escapeAttr(section.title)}">
+                <strong class="title">${escapeHtml(section.title)}</strong>
+                <span class="small">${progress.done} / ${progress.total} Punkte erledigt</span>
+              </button>
+            `;
+          }).join("")}
+        </section>
+      `;
+
+      page.querySelectorAll("[data-open-checklist]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          openChecklist(btn.dataset.openChecklist, btn.dataset.title);
+        });
+      });
+
+      updateFloatingTab();
+    }
+
+    function openChecklist(category, title) {
+      state.currentCategory = category;
+      state.currentSectionTitle = title;
+      state.drawerOpen = true;
+      saveState();
+      renderChecklistDrawer();
+      openDrawer();
+      updateFloatingTab();
+    }
+
+    function renderChecklistDrawer() {
+      const category = state.currentCategory;
+      const title = state.currentSectionTitle;
+      const section = getSection(category, title);
+      if (!section) return;
+
+      const completion = getCompletion(category, title);
+      const progress = sectionProgress(section, category);
+      const firstOpenIndex = section.items.findIndex((item, idx) => item.type === "check" && !completion[idx]);
+
+      drawerTitle.textContent = title;
+      drawerMeta.textContent = `${progress.done} / ${progress.total} erledigt`;
+
+      drawerBody.innerHTML = section.items.map((item, idx) => {
+        if (item.type === "note") {
+          return `<div class="item"><div class="note">${escapeHtml(item.text)}</div></div>`;
+        }
+
+        const checked = !!completion[idx];
+        const active = firstOpenIndex === idx;
+        return `
+          <label class="item check ${checked ? "completed" : ""} ${active ? "active" : ""}">
+            <input type="checkbox" ${checked ? "checked" : ""} data-check-index="${idx}" />
+            <div>
+              <div class="label">${escapeHtml(item.label)}</div>
+              <div class="response">${escapeHtml(item.response || "")}</div>
+            </div>
+          </label>
+        `;
+      }).join("");
+
+      drawerBody.querySelectorAll("[data-check-index]").forEach(box => {
+        box.addEventListener("change", () => {
+          const idx = Number(box.dataset.checkIndex);
+          setItemCompletion(category, title, idx, box.checked);
+          renderChecklistDrawer();
+          refreshPageAfterProgressChange();
+        });
+      });
+
+      const showNext = progress.complete;
+      footerCta.classList.toggle("show", showNext);
+      updateNextChecklistButton();
+    }
+
+    function updateNextChecklistButton() {
+      const sections = getSections(state.currentCategory);
+      const currentIndex = sections.findIndex(section => section.title === state.currentSectionTitle);
+      const nextSection = currentIndex >= 0 ? sections[currentIndex + 1] : null;
+      nextChecklistBtn.disabled = !nextSection;
+      nextChecklistBtn.textContent = nextSection ? `Next Checklist: ${nextSection.title}` : "No further checklist";
+    }
+
+    function goToNextChecklist() {
+      const sections = getSections(state.currentCategory);
+      const currentIndex = sections.findIndex(section => section.title === state.currentSectionTitle);
+      const nextSection = currentIndex >= 0 ? sections[currentIndex + 1] : null;
+      if (!nextSection) return;
+      openChecklist(state.currentCategory, nextSection.title);
+    }
+
+    function refreshPageAfterProgressChange() {
+      const currentMenuVisible = page.querySelector(".section-list");
+      if (!currentMenuVisible) return;
+      if (state.currentCategory) renderSectionMenu(state.currentCategory);
+    }
+
+    function openDrawer() {
+      drawer.classList.add("open");
+      overlay.classList.add("open");
+      drawer.setAttribute("aria-hidden", "false");
+      state.drawerOpen = true;
+      saveState();
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove("open");
+      overlay.classList.remove("open");
+      drawer.setAttribute("aria-hidden", "true");
+      state.drawerOpen = false;
+      saveState();
+    }
+
+    function updateFloatingTab() {
+      drawerTab.hidden = !(state.currentCategory && state.currentSectionTitle);
+    }
+
+    function resetAll() {
+      const ok = confirm("Wirklich alle Checklisten zurücksetzen?");
+      if (!ok) return;
+      state.completed = {};
+      saveState();
+      renderHome();
+      if (state.currentCategory && state.currentSectionTitle) renderChecklistDrawer();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
+    document.getElementById("homeTopBtn").addEventListener("click", renderHome);
+    document.getElementById("emerTopBtn").addEventListener("click", () => renderSectionMenu("emergency"));
+    document.getElementById("themeBtn").addEventListener("click", () => setTheme(state.theme === "dark" ? "light" : "dark"));
+    document.getElementById("drawerTab").addEventListener("click", openDrawer);
+    document.getElementById("closeDrawerBtn").addEventListener("click", closeDrawer);
+    document.getElementById("backHomeBtn").addEventListener("click", renderHome);
+    document.getElementById("nextChecklistBtn").addEventListener("click", goToNextChecklist);
+    overlay.addEventListener("click", closeDrawer);
+
+    setTheme(state.theme);
+    renderHome();
+
+    if (state.currentCategory && state.currentSectionTitle) {
+      renderChecklistDrawer();
+      updateFloatingTab();
+      if (state.drawerOpen) openDrawer();
+    }
+  </script>
+</body>
+</html>
